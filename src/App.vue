@@ -8,7 +8,7 @@ import 'leaflet/dist/leaflet.css';
 // --- DATA SENSOR ---
 const sensorData = ref({
   hujan: 0,           // 0 = Cerah, 1 = Hujan
-  tanah: 4095, 
+  tanah: 0, 
   genangan_permukaan: 0,      // Genangan Permukaan
   getaran: 0, 
   kemiringan: 0,
@@ -34,6 +34,7 @@ const statusGlobal = computed(() => {
 });
 
 // --- LOGIKA LABEL SENSOR ---
+// Label Hujan tidak dipakai di script karena langsung di template, tapi dibiarkan aman
 const labelHujan = computed(() => sensorData.value.hujan == 1 ? 'Hujan Turun' : 'Cerah / Kering');
 const classHujan = computed(() => sensorData.value.hujan == 1 ? 'pill-danger' : 'pill-safe');
 
@@ -102,14 +103,14 @@ onMounted(() => {
 
       <div class="sensor-group-main">
         
-        <div class="card sensor-card">
+        <div class="card sensor-card" :class="{'blink-animation': sensorData.hujan == 1}">
           <div class="card-icon">🌧️</div>
           <div class="card-info">
             <h3>Sensor Hujan</h3>
-            <div class="value-text">{{ sensorData.hujan }}</div> 
-            <div class="status-pill" :class="classHujan">
-              {{ labelHujan }}
+            <div class="value-text" :style="{color: sensorData.hujan == 1 ? 'red' : '#2c3e50', fontSize: '2rem'}">
+              {{ sensorData.hujan == 1 ? 'HUJAN TURUN' : 'CERAH' }}
             </div>
+            <small v-if="sensorData.hujan == 1" style="color:red; font-weight:bold;">TANAH BASAH!</small>
           </div>
         </div>
 
@@ -138,7 +139,9 @@ onMounted(() => {
           </div>
         </div>
 
-      </div> <div class="sensor-group-structural">
+      </div> 
+      
+      <div class="sensor-group-structural">
 
         <div class="card sensor-card" :class="{'blink-animation': sensorData.getaran == 1}">
           <div class="card-icon">⚠️</div>
@@ -164,7 +167,9 @@ onMounted(() => {
           </div>
         </div>
         
-      </div> <div class="card map-card">
+      </div> 
+      
+      <div class="card map-card">
         <div class="map-header">
           <h3>📍 Lokasi GPS Real-time</h3>
           <p>Lat: {{ sensorData.gps.lat }} | Lng: {{ sensorData.gps.lng }}</p>
@@ -224,7 +229,7 @@ onMounted(() => {
 .status-warning { background: linear-gradient(135deg, #f2994a, #f2c94c); color: #333; }
 .status-danger { background: linear-gradient(135deg, #cb2d3e, #ef473a); animation: pulse-danger 1.5s infinite; }
 
-/* --- LAYOUT GRID BARU --- */
+/* --- LAYOUT GRID --- */
 
 /* Grup 1: 3 Sensor Atas (Layout Flexible) */
 .sensor-group-main {
@@ -292,13 +297,13 @@ onMounted(() => {
 .progress-bg { width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-top: 10px; overflow: hidden; }
 .progress-fill { height: 100%; background: #3498db; transition: width 0.5s ease; }
 
-/* --- ANIMASI BARU UNTUK GETARAN (BLINK) --- */
+/* --- ANIMASI BARU (BLINK) --- */
 @keyframes blink-alert-card {
   0%, 100% { background-color: white; border-color: transparent; }
   50% { background-color: #fff0f0; border-color: red; } /* Merah sangat muda & border merah */
 }
 
-/* Class baru menggantikan shake-animation */
+/* Class untuk animasi blink */
 .blink-animation {
   animation: blink-alert-card 1s infinite;
 }
